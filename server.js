@@ -321,6 +321,10 @@ app.get("/api/debug", (req, res) => {
   res.json({ users: users.size, passkeys: passkeys.size });
 });
 
+app.get("/api/health", (_req, res) =>
+  res.json({ ok: true, service: "passkey-demo" }),
+);
+
 app.listen(Number(process.env.PORT) || 3000, () => {
   console.log(`Passkey demo running at ${origin}`);
   console.log(`RP ID: ${rpID}`);
