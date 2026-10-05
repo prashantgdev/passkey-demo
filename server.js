@@ -16,6 +16,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+app.set("trust proxy", 1);
 app.use(express.json());
 
 app.use(session({
@@ -25,7 +27,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     maxAge: 1000 * 60 * 60 * 24 * 7,
   },
 }));
