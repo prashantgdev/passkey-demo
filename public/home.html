@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home — Passkey Demo</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="/home.html"><span class="logo-mark">⌁</span><span>Passkey Demo</span></a>
+    <nav class="nav-links">
+      <a href="/">Website</a>
+      <button id="logout" class="btn secondary">Log out</button>
+    </nav>
+  </header>
+
+  <main class="container dashboard">
+    <span class="eyebrow">Authenticated</span>
+    <h1>Welcome, <span id="name" class="gradient">there</span>.</h1>
+    <p class="dashboard-sub">Your passkey session is active.</p>
+
+    <section class="stats">
+      <div class="card stat">
+        <div id="passkeyCount" class="number">—</div>
+        <div class="label">Passkeys registered</div>
+      </div>
+      <div class="card stat">
+        <div class="number">WebAuthn</div>
+        <div class="label">Authentication standard</div>
+      </div>
+      <div class="card stat">
+        <div class="number">Memory</div>
+        <div class="label">Storage mode</div>
+      </div>
+    </section>
+
+    <section class="card panel">
+      <h2>Your account</h2>
+      <div class="passkey-row">
+        <div>
+          <strong id="username">—</strong>
+          <p id="userId">—</p>
+        </div>
+        <span>🔐</span>
+      </div>
+    </section>
+
+    <section class="card panel">
+      <h2>Testing notes</h2>
+      <p class="dashboard-sub">
+        This project stores users and passkeys in JavaScript Maps.
+        Restarting the Node.js server clears all application data.
+      </p>
+    </section>
+  </main>
+
+<script>
+async function api(url, options = {}) {
+  const response = await fetch(url, options);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "Request failed.");
+  return data;
+}
+
+async function init() {
+  const me = await api("/api/me");
+
+  if (!me.authenticated) {
+    window.location.href = "/login.html";
+    return;
+  }
+
+  document.getElementById("name").textContent = me.user.displayName;
+  document.getElementById("username").textContent = "@" + me.user.username;
+  document.getElementById("userId").textContent = "User ID: " + me.user.id;
+
+  const stats = await api("/api/stats");
+  document.getElementById("passkeyCount").textContent = stats.passkeys;
+}
+
+document.getElementById("logout").addEventListener("click", async () => {
+  await api("/api/logout", { method: "POST" });
+  window.location.href = "/";
+});
+
+init().catch(() => {
+  window.location.href = "/login.html";
+});
+</script>
+</body>
+</html>

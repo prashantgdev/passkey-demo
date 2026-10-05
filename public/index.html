@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Passkey Authentication</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="/">
+      <span class="logo-mark">⌁</span>
+      <span>Passkey Demo</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/login.html">Log in</a>
+      <a href="/signup.html" class="btn">Get started</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <span class="eyebrow">WebAuthn · Passkeys · Node.js</span>
+        <h1>Sign in with a <span class="gradient">passkey.</span></h1>
+        <p class="lead">
+          A clean passkey authentication demo built with Node.js and Express.
+          No passwords, no database, and no complicated setup — just a simple
+          testing project.
+        </p>
+        <div class="actions">
+          <a class="btn" href="/signup.html">Create an account</a>
+          <a class="btn secondary" href="/login.html">I already have an account</a>
+        </div>
+      </div>
+
+      <div class="card security-card">
+        <div class="security-icon">🔐</div>
+        <h2>Built around WebAuthn</h2>
+        <p>
+          Your browser and authenticator handle the credential. The server
+          verifies the signed WebAuthn response using the stored public key.
+        </p>
+
+        <div class="feature">
+          <div>✓</div>
+          <div><b>Face, fingerprint or device PIN</b><span>Use the authenticator already on your device.</span></div>
+        </div>
+        <div class="feature">
+          <div>✓</div>
+          <div><b>No password database</b><span>This demo keeps credentials in memory for testing.</span></div>
+        </div>
+        <div class="feature">
+          <div>✓</div>
+          <div><b>Simple Node.js backend</b><span>Express + SimpleWebAuthn with a small API.</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Test project · Data is stored in memory and disappears when the server restarts.
+  </footer>
+</body>
+</html>

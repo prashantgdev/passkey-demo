@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log in — Passkey Demo</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="/"><span class="logo-mark">⌁</span><span>Passkey Demo</span></a>
+    <nav class="nav-links"><a href="/signup.html">Create account</a></nav>
+  </header>
+
+  <main class="container auth-wrap">
+    <section class="card auth-card">
+      <span class="eyebrow">Welcome back</span>
+      <h1>Log in</h1>
+      <p>Enter your username, then authenticate with the passkey saved on your device.</p>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="username">Username</label>
+          <input id="username" required autocomplete="username" placeholder="alex">
+        </div>
+
+        <button class="btn full" type="submit">Continue with passkey</button>
+      </form>
+
+      <div id="notice" class="notice"></div>
+      <p class="helper">New here? <a href="/signup.html">Create an account</a></p>
+    </section>
+  </main>
+
+<script type="module">
+import { startAuthentication } from "https://cdn.jsdelivr.net/npm/@simplewebauthn/browser@14/+esm";
+
+const form = document.getElementById("loginForm");
+const notice = document.getElementById("notice");
+
+function show(message, type = "error") {
+  notice.textContent = message;
+  notice.className = `notice show ${type}`;
+}
+
+async function api(url, options = {}) {
+  const response = await fetch(url, options);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "Something went wrong.");
+  return data;
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  try {
+    const username = document.getElementById("username").value.trim().toLowerCase();
+
+    show("Preparing secure login...", "success");
+
+    const optionsJSON = await api("/api/passkey/login/options", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username })
+    });
+
+    show("Follow your browser's passkey prompt...", "success");
+
+    const authenticationResponse =
+      await startAuthentication({ optionsJSON });
+
+    await api("/api/passkey/login/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(authenticationResponse)
+    });
+
+    window.location.href = "/home.html";
+  } catch (error) {
+    console.error(error);
+    show(error.message);
+  }
+});
+</script>
+</body>
+</html>

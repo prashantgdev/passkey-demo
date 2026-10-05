@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create account — Passkey Demo</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="/"><span class="logo-mark">⌁</span><span>Passkey Demo</span></a>
+    <nav class="nav-links"><a href="/login.html">Log in</a></nav>
+  </header>
+
+  <main class="container auth-wrap">
+    <section class="card auth-card">
+      <span class="eyebrow">Create your account</span>
+      <h1>Set up your passkey</h1>
+      <p>Create a test account, then your browser will ask you to create a passkey.</p>
+
+      <form id="signupForm">
+        <div class="field">
+          <label for="displayName">Display name</label>
+          <input id="displayName" required maxlength="60" placeholder="Alex">
+        </div>
+
+        <div class="field">
+          <label for="username">Username</label>
+          <input id="username" required minlength="3" maxlength="32"
+                 pattern="[A-Za-z0-9._-]+" autocomplete="username" placeholder="alex">
+        </div>
+
+        <button class="btn full" type="submit">Create account & continue</button>
+      </form>
+
+      <div id="notice" class="notice"></div>
+      <p class="helper">Already have an account? <a href="/login.html">Log in</a></p>
+    </section>
+  </main>
+
+<script type="module">
+import { startRegistration } from "https://cdn.jsdelivr.net/npm/@simplewebauthn/browser@14/+esm";
+
+const form = document.getElementById("signupForm");
+const notice = document.getElementById("notice");
+
+function show(message, type = "error") {
+  notice.textContent = message;
+  notice.className = `notice show ${type}`;
+}
+
+async function api(url, options = {}) {
+  const response = await fetch(url, options);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "Something went wrong.");
+  return data;
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  try {
+    const username = document.getElementById("username").value.trim().toLowerCase();
+    const displayName = document.getElementById("displayName").value.trim();
+
+    show("Creating your account...", "success");
+
+    await api("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, displayName })
+    });
+
+    const optionsJSON = await api("/api/passkey/register/options");
+
+    show("Follow your browser's passkey prompt...", "success");
+
+    const registrationResponse = await startRegistration({ optionsJSON });
+
+    await api("/api/passkey/register/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(registrationResponse)
+    });
+
+    window.location.href = "/home.html";
+  } catch (error) {
+    console.error(error);
+    show(error.message);
+  }
+});
+</script>
+</body>
+</html>
